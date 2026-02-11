@@ -22,7 +22,7 @@ final class AdController extends AbstractController
 {
     // 1. La page qui liste toutes les annonces (Page d'accueil du clone)
 
-#[Route('/ad', name: 'app_ad_index')]
+#[Route('/', name: 'app_ad_index')]
 public function index(AdRepository $adRepo, CategoryRepository $categoryRepo, Request $request): Response
 {
     $query = $request->query->get('q');
