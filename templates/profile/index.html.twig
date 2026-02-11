@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil - Lebonclone{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4 p-4 text-center">
+                <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; font-size: 32px;">
+                    {{ app.user.userIdentifier|first|upper }}
+                </div>
+                <h4>{{ app.user.userIdentifier }}</h4>
+                <p class="text-muted small">Membre depuis {{ "now"|date("Y") }}</p>
+                <hr>
+                <a href="{{ path('app_ad_new') }}" class="btn btn-warning w-100 fw-bold">Déposer une nouvelle annonce</a>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <h2 class="fw-bold mb-4">Mes annonces ({{ ads|length }})</h2>
+
+            {% for ad in ads %}
+                <div class="card shadow-sm border-0 mb-3 overflow-hidden">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-md-3">
+                            {# --- LOGIQUE D'AFFICHAGE CORRIGÉE --- #}
+                            {% if ad.images|length > 0 %}
+                                {# Nouveau système : on prend la première image de la collection #}
+                                <img src="{{ asset('uploads/images/' ~ ad.images[0].name) }}" 
+                                     class="img-fluid rounded-start" 
+                                     alt="{{ ad.title }}" 
+                                     style="height: 120px; width: 100%; object-fit: cover;">
+                            {% elseif ad.imageName %}
+                                {# Ancien système : champ imageName unique #}
+                                <img src="{{ asset('images/ads/' ~ ad.imageName) }}" 
+                                     class="img-fluid rounded-start" 
+                                     alt="{{ ad.title }}" 
+                                     style="height: 120px; width: 100%; object-fit: cover;">
+                            {% else %}
+                                {# Placeholder si aucune image n'existe #}
+                                <img src="https://via.placeholder.com/150?text=Pas+d'image" 
+                                     class="img-fluid rounded-start" 
+                                     alt="no-image"
+                                     style="height: 120px; width: 100%; object-fit: cover;">
+                            {% endif %}
+                        </div>
+
+                        <div class="col-md-6 p-3">
+                            <h5 class="card-title mb-1 fw-bold">{{ ad.title }}</h5>
+                            <p class="text-primary fw-bold mb-0">{{ ad.price }} €</p>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar3 me-1"></i>Mise à jour le {{ ad.updatedAt|date('d/m/Y') }}
+                            </small>
+                        </div>
+
+                        <div class="col-md-3 text-center p-3">
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('app_ad_edit', {'id': ad.id}) }}" class="btn btn-outline-secondary btn-sm">Modifier</a>
+                                <a href="{{ path('app_ad_delete', {id: ad.id}) }}" 
+                                    class="btn btn-outline-danger btn-sm" 
+                                    onclick="return confirm('Voulez-vous vraiment supprimer cette annonce ?')">
+                                     Supprimer
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-light border text-center py-5">
+                    <p class="mb-0 text-muted">Vous n'avez pas encore déposé d'annonces.</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

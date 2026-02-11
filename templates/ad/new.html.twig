@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Déposer une annonce{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow p-4">
+                <h1 class="mb-4">Déposer une annonce</h1>
+                
+                {{ form_start(form) }}
+                    {{ form_widget(form) }}
+                    <button type="submit" class="btn btn-warning mt-3 w-100 fw-bold">
+                        Publier mon annonce
+                    </button>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

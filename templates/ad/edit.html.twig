@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier l'annonce{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 p-4">
+                <h2 class="fw-bold mb-4 text-center">Modifier mon annonce</h2>
+
+                {# --- SECTION IMAGES ACTUELLES --- #}
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Images enregistrées</label>
+                    <div class="d-flex flex-wrap gap-2 p-3 bg-light rounded">
+                        {% if ad.images|length > 0 %}
+                            {% for image in ad.images %}
+                                <div class="position-relative">
+                                    <img src="{{ asset('uploads/images/' ~ image.name) }}" 
+                                         class="rounded shadow-sm" 
+                                         style="width: 100px; height: 80px; object-fit: cover;" 
+                                         alt="Image de l'annonce">
+                                    {# Note : Plus tard, nous ajouterons ici un lien pour supprimer l'image individuellement #}
+                                </div>
+                            {% endfor %}
+                        {% elseif ad.imageName %}
+                            {# Pour tes anciennes annonces (PS5, Toyota) #}
+                            <img src="{{ asset('images/ads/' ~ ad.imageName) }}" 
+                                 class="rounded shadow-sm" 
+                                 style="width: 100px; height: 80px; object-fit: cover;">
+                        {% else %}
+                            <p class="text-muted small mb-0">Aucune image pour le moment.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                {# --- FORMULAIRE --- #}
+                {{ form_start(form) }}
+                    {{ form_widget(form) }}
+                    
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success fw-bold py-2">
+                            Enregistrer les modifications
+                        </button>
+                        <a href="{{ path('app_ad_index') }}" class="btn btn-light text-muted">Annuler</a>
+                    </div>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

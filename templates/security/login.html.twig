@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion - Lebonclone{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0 p-4">
+                <h1 class="h3 mb-4 fw-bold text-center">Bonjour !</h1>
+                <p class="text-muted text-center mb-4">Connectez-vous pour découvrir les meilleures occasions.</p>
+
+                <form method="post">
+                    {% if error %}
+                        <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="inputEmail" class="form-label">Adresse email</label>
+                        <input type="email" value="{{ last_username }}" name="email" id="inputEmail" class="form-control py-2" autocomplete="email" required autofocus>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="inputPassword" class="form-label">Mot de passe</label>
+                        <input type="password" name="password" id="inputPassword" class="form-control py-2" autocomplete="current-password" required>
+                    </div>
+
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+                    <button class="btn btn-primary w-100 fw-bold py-2 mt-3" type="submit" style="background-color: #4183d7; border: none;">
+                        Se connecter
+                    </button>
+
+                    <div class="text-center mt-4">
+                        <p class="small">Envie de nous rejoindre ? <a href="{{ path('app_register') }}" class="text-primary fw-bold text-decoration-none">Créez un compte</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

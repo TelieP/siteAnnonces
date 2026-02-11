@@ -1,0 +1,134 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ ad.title }}{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ path('app_ad_index') }}">Accueil</a></li>
+                    <li class="breadcrumb-item active">{{ ad.category.name }}</li>
+                </ol>
+            </nav>
+
+            <div class="card shadow-sm border-0 overflow-hidden mb-4">
+                {# --- NOUVELLE GALERIE D'IMAGES --- #}
+                <div class="position-relative bg-light">
+                    {% if ad.images|length > 0 %}
+                        {# Image principale #}
+                        <img src="{{ asset('uploads/images/' ~ ad.images[0].name) }}" 
+                             id="mainImg" 
+                             class="img-fluid w-100" 
+                             alt="{{ ad.title }}" 
+                             style="height: 500px; object-fit: cover;">
+                        
+                        {# Miniatures (seulement s'il y en a plusieurs) #}
+                        {% if ad.images|length > 1 %}
+                            <div class="d-flex gap-2 p-2 bg-white border-top overflow-auto">
+                                {% for image in ad.images %}
+                                    <img src="{{ asset('uploads/images/' ~ image.name) }}" 
+                                         class="img-thumbnail" 
+                                         style="width: 80px; height: 60px; object-fit: cover; cursor: pointer;"
+                                         onmouseover="document.getElementById('mainImg').src = this.src"
+                                         onclick="document.getElementById('mainImg').src = this.src">
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% else %}
+                        {# Image par défaut si aucune image galerie n'existe #}
+                        <img src="https://placehold.co/800x500?text=Pas+d'image" 
+                             class="img-fluid w-100" 
+                             alt="Image par défaut">
+                    {% endif %}
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h1 class="fw-bold h2 mb-0">{{ ad.title }}</h1>
+                        <span class="badge bg-success fs-5">{{ ad.price }} €</span>
+                    </div>
+
+                    {# Affichage de la ville #}
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-geo-alt-fill text-danger"></i> {{ ad.city|default('Lieu non précisé') }}
+                    </p>
+
+                    <hr>
+                    <h5 class="fw-bold mb-3">Description</h5>
+                    <p class="text-muted" style="white-space: pre-line;">{{ ad.description }}</p>
+                </div>
+            </div>
+
+            {# --- SECTION FORMULAIRE DE RÉPONSE --- #}
+            <div id="contact" class="card shadow-sm border-0 mt-4 mb-5">
+                <div class="card-body p-4">
+                    <h4 class="fw-bold mb-4">
+                        <i class="bi bi-envelope-paper-fill me-2 text-primary"></i>Répondre à cette annonce
+                    </h4>
+                    
+                    {% if app.user %}
+                        {% if app.user == ad.author %}
+                            <div class="alert alert-info border-0 shadow-sm">
+                                <i class="bi bi-info-circle me-2"></i>Ceci est votre annonce. Vous ne pouvez pas vous répondre à vous-même.
+                            </div>
+                        {% else %}
+                            {% set formVar = contactForm is defined ? contactForm : (form is defined ? form : null) %}
+                            
+                            {% if formVar %}
+                                {{ form_start(formVar) }}
+                                    {{ form_widget(formVar) }}
+                                    <button type="submit" class="btn btn-primary w-100 fw-bold mt-3 py-2 shadow-sm">
+                                        <i class="bi bi-send me-2"></i>Envoyer ma réponse
+                                    </button>
+                                {{ form_end(formVar) }}
+                            {% else %}
+                                <p class="text-danger">Erreur : Le formulaire de contact n'a pas pu être chargé.</p>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-4 bg-light rounded shadow-sm">
+                            <p class="text-muted mb-3">Vous devez être connecté pour envoyer un message.</p>
+                            <a href="{{ path('app_login') }}" class="btn btn-primary rounded-pill px-4 fw-bold">Se connecter</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# --- COLONNE VENDEUR (DROITE) --- #}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                <div class="card-body p-4 text-center">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px; font-size: 2rem;">
+                        {{ ad.author.userIdentifier|first|upper }}
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ ad.author.userIdentifier }}</h5>
+                    
+                    <p class="text-muted small mb-3">
+                        {% if ad.updatedAt is defined and ad.updatedAt is not null %}
+                            Annonce du {{ ad.updatedAt|date('d/m/Y') }}
+                        {% else %}
+                            Membre actif
+                        {% endif %}
+                    </p>
+                    
+                    <hr>
+                    <div class="d-grid gap-2">
+                        <a href="#contact" class="btn btn-warning fw-bold shadow-sm">
+                            <i class="bi bi-chat-dots me-2"></i>Contacter le vendeur
+                        </a>
+
+                        {% if ad.showPhone and ad.author.phoneNumber %}
+                            <a href="tel:{{ ad.author.phoneNumber }}" class="btn btn-outline-dark fw-bold shadow-sm">
+                                <i class="bi bi-telephone me-2"></i> {{ ad.author.phoneNumber }}
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mes Favoris - Lebonclone{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold"><i class="bi bi-heart-fill text-danger me-2"></i>Mes annonces favorites</h1>
+        <a href="{{ path('app_ad_index') }}" class="btn btn-outline-secondary btn-sm">Retour à l'accueil</a>
+    </div>
+
+    <hr class="mb-5">
+
+    <div class="row">
+        {% for ad in ads %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm border-0 overflow-hidden ad-card">
+                    {# Section Image avec Badge Prix #}
+                    <div class="position-relative">
+                        {% if ad.imageName %}
+                            <img src="{{ asset('images/ads/' ~ ad.imageName) }}" 
+                                 class="card-img-top" 
+                                 alt="{{ ad.title }}" 
+                                 style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/400x250?text=Pas+d'image" 
+                                 class="card-img-top" 
+                                 alt="placeholder">
+                        {% endif %}
+                        
+                        {# Bouton pour retirer des favoris (Bascule) #}
+                        <a href="{{ path('app_ad_favorite', {id: ad.id}) }}" 
+                           class="position-absolute top-0 end-0 m-2 btn btn-danger btn-sm rounded-circle shadow"
+                           title="Retirer des favoris">
+                            <i class="bi bi-heart-fill"></i>
+                        </a>
+
+                        <span class="badge bg-dark position-absolute bottom-0 start-0 m-2">
+                            {{ ad.price }} €
+                        </span>
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title text-truncate">{{ ad.title }}</h5>
+                        <p class="text-muted small mb-2">
+                            <i class="bi bi-tag"></i> {{ ad.category.name }}
+                        </p>
+                        <p class="card-text text-muted small text-truncate-2">
+                            {{ ad.description|slice(0, 80) }}...
+                        </p>
+                    </div>
+
+                    <div class="card-footer bg-white border-0 pb-3">
+                        <div class="d-grid">
+                            <a href="{{ path('app_ad_show', {'id': ad.id}) }}" class="btn btn-outline-primary btn-sm">Voir l'annonce</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            {# Message si la liste est vide #}
+            <div class="col-12 text-center py-5">
+                <div class="mb-4">
+                    <i class="bi bi-heartbreak text-muted" style="font-size: 4rem;"></i>
+                </div>
+                <h3 class="text-muted">Vous n'avez pas encore de favoris.</h3>
+                <p class="lead text-muted mb-4">Parcourez les annonces et cliquez sur le petit cœur pour les enregistrer ici.</p>
+                <a href="{{ path('app_ad_index') }}" class="btn btn-warning fw-bold px-4">Découvrir les annonces</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .ad-card { transition: transform 0.2s; }
+    .ad-card:hover { transform: translateY(-5px); }
+    .text-truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+</style>
+{% endblock %}

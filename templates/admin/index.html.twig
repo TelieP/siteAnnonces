@@ -1,0 +1,102 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Tableau de bord - Admin{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+        {% for message in app.flashes('success') %}
+             <div class="alert alert-success mt-3">
+            {{ message }}
+            </div>
+         {% endfor %}
+    <h1 class="fw-bold mb-4 text-danger"><i class="bi bi-shield-lock me-2"></i>Administration</h1>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card bg-primary text-white border-0 shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <h2 class="display-4 fw-bold">{{ adsCount }}</h2>
+                    <p class="mb-0">Annonces publiées</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ path('admin_users_list') }}" class="text-decoration-none">
+            <div class="card bg-dark text-white border-0 shadow-sm">
+            <div class="card-body p-4 text-center">
+                <h2 class="display-4 fw-bold">{{ usersCount }}</h2>
+                <p class="mb-0">Utilisateurs inscrits <i class="bi bi-arrow-right-short"></i></p>
+            </div>
+        </div>
+            </a>
+</div>
+    </div>
+
+    <h3 class="mt-5 fw-bold">Dernières annonces à modérer</h3>
+    <div class="table-responsive bg-white shadow-sm rounded mt-3">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Annonce</th>
+                    <th>Prix</th>
+                    <th>Auteur</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ad in lastAds %}
+                <tr>
+                    <td>{{ ad.title }}</td>
+                    <td>{{ ad.price }} €</td>
+                    <td>{{ ad.author.userIdentifier }}</td>
+                    <td>
+                        <a href="{{ path('admin_ad_delete', {id: ad.id}) }}" 
+                        class="btn btn-sm btn-outline-danger" 
+                        onclick="return confirm('Es-tu sûr de vouloir supprimer cette annonce ?')">
+                        Supprimer
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<hr class="my-5 mb-5 pb-5">
+<div class="col-md-8 mx-auto">
+    <div class="card shadow-sm p-4">
+        <h4 class="fw-bold mb-4">Activité du site (7 derniers jours)</h4>
+        <div style="height: 300px;">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    // On attend que le DOM soit totalement chargé
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('myChart');
+        
+        // On récupère les données envoyées par le contrôleur
+        // Le filtre |raw est indispensable ici !
+        const chartData = {{ chartData|raw }};
+
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'bar', // On commence par des barres, c'est plus visible
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { stepSize: 1 }
+                        }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
