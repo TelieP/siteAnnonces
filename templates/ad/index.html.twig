@@ -43,13 +43,12 @@
                             <i class="bi bi-house fs-3 text-info"></i>
                         {% elseif 'travail' in cat.name|lower or 'emploi' in cat.name|lower %}
                             <i class="bi bi-person-workspace fs-3 text-info"></i>
-                        {% elseif 'trav' in cat.name|lower or 'emploi' in cat.name|lower %}
+                        {% elseif 'trav' in cat.name|lower %}
                             <i class="bi bi-tools fs-3 text-info"></i>
-                        {% elseif 'services' in cat.name|lower or 'Serv' in cat.name|lower %}
+                        {% elseif 'services' in cat.name|lower or 'serv' in cat.name|lower %}
                             <i class="bi bi-person-raised-hand fs-3 text-info"></i>
                         {% elseif 'informatique' in cat.name|lower or 'multimedia' in cat.name|lower %}
                             <i class="bi bi-laptop fs-3 text-info"></i>
-                        
                         {% elseif 'mobilier' in cat.name|lower or 'mob' in cat.name|lower %}
                             <i class="bi bi-box-seam-fill fs-3 text-info"></i>
                         {% else %}
@@ -82,7 +81,7 @@
     {# GRILLE DES ANNONCES #}
     <div class="row">
         {% for ad in ads %}
-            <div class="col-md-4 mb-4">
+            <div class="col-md-4 mb-4" id="ad-{{ ad.id }}">
                 <div class="card h-100 shadow-sm border-0 overflow-hidden ad-card">
                     
                     {# Zone Image #}
@@ -100,6 +99,23 @@
                                  class="card-img-top" alt="placeholder"
                                  style="height: 220px; object-fit: cover;">
                         {% endif %}
+
+                        {# --- BLOC DES FAVORIS AJOUTÉ ICI --- #}
+                        <div class="position-absolute top-0 end-0 m-2">
+                            {% if app.user %}
+                                <a href="{{ path('app_ad_favorite', {id: ad.id}) }}" class="text-decoration-none">
+                                    {% if ad in app.user.favorites %}
+                                        <i class="bi bi-heart-fill text-danger fs-4 shadow"></i>
+                                    {% else %}
+                                        <i class="bi bi-heart text-white fs-4 shadow"></i>
+                                    {% endif %}
+                                </a>
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="text-decoration-none">
+                                    <i class="bi bi-heart text-white fs-4 shadow"></i>
+                                </a>
+                            {% endif %}
+                        </div>
                         
                         <span class="badge bg-dark position-absolute bottom-0 start-0 m-2">
                             {{ ad.price }} €
@@ -145,6 +161,10 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         height: 40px;
+    }
+    /* Ajout d'une ombre portée sur l'icône pour qu'elle soit visible sur images claires */
+    .bi-heart, .bi-heart-fill {
+        filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5));
     }
 </style>
 {% endblock %}
