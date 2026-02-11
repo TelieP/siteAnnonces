@@ -1,6 +1,6 @@
 # Les Annonces - Plateforme de petites annonces
 
-Lebonclone est une application de type "marketplace" développée avec **Symfony 7**. Elle permet aux utilisateurs de publier, consulter et gérer des petites annonces avec un système de galerie photos.
+Les Annonces  est une application de type "marketplace" développée avec **Symfony 7**. Elle permet aux utilisateurs de publier, consulter et gérer des petites annonces avec un système de galerie photos.
 
 ## 🚀 Fonctionnalités
 
