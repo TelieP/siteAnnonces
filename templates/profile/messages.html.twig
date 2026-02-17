@@ -40,7 +40,7 @@
         <div class="card-body">
         <h5 class="card-title">{{ msg.ad.title }}</h5>
         <p class="card-text">{{ msg.content }}</p>
-        <p class="small text-muted">Envoyé par : {{ msg.sender.userIdentifier }}</p>
+        <p class="small text-muted">Envoyé par : {{ msg.sender.userName }}</p>
         
         <div class="d-flex gap-2">
             {# Le bouton Répondre appelle maintenant 'app_message_read' pour passer le message en "LU" #}

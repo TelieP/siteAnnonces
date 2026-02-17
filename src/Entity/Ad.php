@@ -75,6 +75,12 @@ class Ad
     #[ORM\OneToMany(targetEntity: Image::class, mappedBy: 'ad' , cascade: ['persist'])]
     private Collection $images;
 
+    /**
+     * @var Collection<int, History>
+     */
+    #[ORM\OneToMany(targetEntity: History::class, mappedBy: 'ad', orphanRemoval: true)]
+    private Collection $histories;
+
     public function __construct()
     {
         $this->updatedAt = new \DateTimeImmutable();
@@ -82,6 +88,7 @@ class Ad
         $this->createdAt = new \DateTimeImmutable();
         $this->messages = new ArrayCollection();
         $this->images = new ArrayCollection();
+        $this->histories = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -290,6 +297,36 @@ class Ad
             // set the owning side to null (unless already changed)
             if ($image->getAd() === $this) {
                 $image->setAd(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, History>
+     */
+    public function getHistories(): Collection
+    {
+        return $this->histories;
+    }
+
+    public function addHistory(History $history): static
+    {
+        if (!$this->histories->contains($history)) {
+            $this->histories->add($history);
+            $history->setAd($this);
+        }
+
+        return $this;
+    }
+
+    public function removeHistory(History $history): static
+    {
+        if ($this->histories->removeElement($history)) {
+            // set the owning side to null (unless already changed)
+            if ($history->getAd() === $this) {
+                $history->setAd(null);
             }
         }
 

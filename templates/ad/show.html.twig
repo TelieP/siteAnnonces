@@ -12,6 +12,18 @@
                     <li class="breadcrumb-item active">{{ ad.category.name }}</li>
                 </ol>
             </nav>
+            {# --- Section compteurs vues et favoris des annonces   --- #}
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="h2 mb-0">{{ ad.title }}</h1> {# Tu peux déplacer le titre ici s'il était plus bas #}
+                <div class="d-flex gap-3 text-muted">
+                    <span class="badge bg-light text-dark border shadow-sm p-2">
+                        <i class="bi bi-eye-fill text-primary"></i> {{ viewsCount }} {{ viewsCount > 1 ? 'vues' : 'vue' }}
+                    </span>
+                    <span class="badge bg-light text-dark border shadow-sm p-2">
+                        <i class="bi bi-heart-fill text-danger"></i> {{ favoritesCount }} {{ favoritesCount > 1 ? 'favoris' : 'favori' }}
+                    </span>
+                </div>
+            </div>
 
             <div class="card shadow-sm border-0 overflow-hidden mb-4">
                 {# --- NOUVELLE GALERIE D'IMAGES --- #}
@@ -67,7 +79,40 @@
                     <h4 class="fw-bold mb-4">
                         <i class="bi bi-envelope-paper-fill me-2 text-primary"></i>Répondre à cette annonce
                     </h4>
-                    
+     
+{# On boucle sur tous les messages de l'annonce pour afficher l'historique #}
+{% for msg in ad.messages %}
+    <div class="mb-4 p-3 border rounded bg-light">
+        <p><strong>{{ msg.sender.username }} :</strong> {{ msg.content }}</p>
+
+        {# Maintenant on peut utiliser 'msg' car on est dans la boucle #}
+        {% if msg.images is not empty %}
+            <div class="d-flex gap-3 flex-wrap mt-2">
+                {% for img in msg.images %}
+                    <div class="message-photo-container">
+                        <img src="{{ asset('uploads/images/' ~ img.name) }}" 
+                             class="rounded shadow-sm border" 
+                             style="width: 100px; height: 100px; object-fit: cover;">
+
+                        {# Bouton supprimer (uniquement pour l'auteur du message) #}
+                        {% if app.user == msg.sender %}
+                            <form method="post" action="{{ path('app_message_image_delete', {'id': img.id}) }}" 
+                                  onsubmit="return confirm('Supprimer cette photo ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ img.id) }}">
+                                <button type="submit" class="btn-delete-image">
+                                    <i class="bi bi-x"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}
+
+           
+        
                     {% if app.user %}
                         {% if app.user == ad.author %}
                             <div class="alert alert-info border-0 shadow-sm">
@@ -77,8 +122,8 @@
                             {% set formVar = contactForm is defined ? contactForm : (form is defined ? form : null) %}
                             
                             {% if formVar %}
-                                {{ form_start(formVar) }}
-                                    {{ form_widget(formVar) }}
+                                    {{ form_start(formVar, {'attr': {'enctype': 'multipart/form-data'}}) }}
+                                  
                                     <button type="submit" class="btn btn-primary w-100 fw-bold mt-3 py-2 shadow-sm">
                                         <i class="bi bi-send me-2"></i>Envoyer ma réponse
                                     </button>
@@ -102,9 +147,9 @@
             <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
                 <div class="card-body p-4 text-center">
                     <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px; font-size: 2rem;">
-                        {{ ad.author.userIdentifier|first|upper }}
+                        {{ ad.author.username|first|upper }}
                     </div>
-                    <h5 class="fw-bold mb-1">{{ ad.author.userIdentifier }}</h5>
+                    <h5 class="fw-bold mb-1">{{ ad.author.username }}</h5>
                     
                     <p class="text-muted small mb-3">
                         {% if ad.updatedAt is defined and ad.updatedAt is not null %}
@@ -130,5 +175,41 @@
             </div>
         </div>
     </div>
+
+    {# --- ANNONCES SIMILAIRES --- #}
+    
+
+        {# --- ANNONCES SIMILAIRES --- #}
+<h3 class="mt-5 mb-4">Annonces similaires</h3>
+<div class="row flex-nowrap overflow-auto pb-3">
+    {% for item in similarAds %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm border-0">
+                {# On récupère la première image de la collection #}
+                {% set firstImage = item.images|first %}
+                
+                {% if firstImage %}
+                    <img src="{{ asset('uploads/images/' ~ firstImage.name) }}" 
+                         class="card-img-top" 
+                         style="height: 180px; object-fit: cover;"
+                         alt="{{ item.title }}">
+                {% else %}
+                    {# Image par défaut si aucune image n'est associée #}
+                    <img src="https://picsum.photos/300/180" 
+                         class="card-img-top" 
+                         alt="Image par défaut">
+                {% endif %}
+
+                <div class="card-body">
+                    <h6 class="fw-bold text-truncate">{{ item.title }}</h6>
+                    <p class="text-danger fw-bold">{{ item.price }} €</p>
+                    <a href="{{ path('app_ad_show', {id: item.id}) }}" 
+                       class="btn btn-outline-primary btn-sm w-100">Voir l'article</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+</div>
 </div>
 {% endblock %}

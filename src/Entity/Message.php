@@ -5,6 +5,8 @@ namespace App\Entity;
 use App\Repository\MessageRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 
 #[ORM\Entity(repositoryClass: MessageRepository::class)]
 class Message
@@ -33,7 +35,14 @@ class Message
     private ?User $recipient_user = null;
 
     #[ORM\Column]
-    private ?bool $isRead = null;
+    private ?bool $isRead = false;
+
+    #[ORM\OneToMany(mappedBy: 'message', targetEntity: MessageImage::class, cascade: ['persist', 'remove'])]
+    private Collection $images;
+
+    public function __construct() {
+        $this->images = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -123,4 +132,33 @@ class Message
 
         return $this;
     }
+
+/**
+     * @return Collection<int, MessageImage>
+     */
+    public function getImages(): Collection
+    {
+        return $this->images;
+    }
+
+    public function addImage(MessageImage $image): self
+    {
+        if (!$this->images->contains($image)) {
+            $this->images->add($image);
+            $image->setMessage($this);
+        }
+        return $this;
+    }
+
+    public function removeImage(MessageImage $image): self
+    {
+        if ($this->images->removeElement($image)) {
+            // set the owning side to null (unless already changed)
+            if ($image->getMessage() === $this) {
+                $image->setMessage(null);
+            }
+        }
+        return $this;
+    }
+
 }

@@ -32,8 +32,10 @@ class ProfileController extends AbstractController
     #[IsGranted('ROLE_USER')]
     public function favorites(): Response
     {
-    return $this->render('profile/favorites.html.twig', [
-        'ads' => $this->getUser()->getFavorites(),
+        /** @var User $user */
+        $user = $this->getUser();
+        return $this->render('profile/favorites.html.twig', [
+        'ads' => $user->getFavorites(),
     ]);
     }
 

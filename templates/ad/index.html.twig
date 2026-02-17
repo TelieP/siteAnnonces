@@ -84,14 +84,9 @@
             <div class="col-md-4 mb-4" id="ad-{{ ad.id }}">
                 <div class="card h-100 shadow-sm border-0 overflow-hidden ad-card">
                     
-                    {# Zone Image #}
                     <div class="position-relative">
                         {% if ad.images|length > 0 %}
                             <img src="{{ asset('uploads/images/' ~ ad.images[0].name) }}" 
-                                 class="card-img-top" alt="{{ ad.title }}" 
-                                 style="height: 220px; object-fit: cover;">
-                        {% elseif ad.imageName %}
-                            <img src="{{ asset('images/ads/' ~ ad.imageName) }}" 
                                  class="card-img-top" alt="{{ ad.title }}" 
                                  style="height: 220px; object-fit: cover;">
                         {% else %}
@@ -100,7 +95,6 @@
                                  style="height: 220px; object-fit: cover;">
                         {% endif %}
 
-                        {# --- BLOC DES FAVORIS AJOUTÉ ICI --- #}
                         <div class="position-absolute top-0 end-0 m-2">
                             {% if app.user %}
                                 <a href="{{ path('app_ad_favorite', {id: ad.id}) }}" class="text-decoration-none">
@@ -146,7 +140,33 @@
                 <p class="lead text-muted">Aucune annonce trouvée.</p>
             </div>
         {% endfor %}
+
     </div>
+
+    {# Section Récemment consultés #}
+{% if historyAds is not empty %}
+    <div class="container mt-5">
+        <h3>Récemment consultés</h3>
+        <div class="row">
+            {% for ad in historyAds %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if ad.images is not empty %}
+                            <img src="{{ asset('uploads/images/' ~ ad.images[0].name) }}" class="card-img-top" alt="{{ ad.title }}" style="height: 150px; object-fit: cover;">
+                        {% else %}
+                            <img src="https://via.placeholder.com/150" class="card-img-top" alt="Pas d'image">
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">{{ ad.title }}</h5>
+                            <p class="text-primary fw-bold">{{ ad.price }} €</p>
+                            <a href="{{ path('app_ad_show', {id: ad.id}) }}" class="btn btn-outline-primary btn-sm">Voir l'annonce</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
 </div>
 
 <style>
@@ -162,9 +182,26 @@
         overflow: hidden;
         height: 40px;
     }
-    /* Ajout d'une ombre portée sur l'icône pour qu'elle soit visible sur images claires */
     .bi-heart, .bi-heart-fill {
         filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.5));
+    }
+    .extra-small { font-size: 0.75rem; }
+
+    /* Custom Scrollbar pour le carrousel horizontal */
+    .custom-scrollbar::-webkit-scrollbar {
+        height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #ffca2c;
+        border-radius: 10px;
+    }
+    .custom-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: #ffca2c #f1f1f1;
     }
 </style>
 {% endblock %}

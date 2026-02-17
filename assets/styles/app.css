@@ -1,3 +1,52 @@
 body {
     background-color: skyblue;
 }
+.custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #007bff #f8f9fa;
+}
+.custom-scrollbar::-webkit-scrollbar {
+    height: 6px;
+}
+.message-images img {
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.message-images img:hover {
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+/* Le conteneur définit la zone de référence */
+.message-photo-container {
+    position: relative; /* Très important pour le bouton */
+    width: 100px;
+    height: 100px;
+}
+
+/* Le bouton vient se placer par rapport au conteneur */
+.btn-delete-image {
+    position: absolute;
+    top: -5px;      /* Décale vers le haut */
+    right: -5px;    /* Décale vers la droite */
+    background-color: #dc3545; /* Rouge Bootstrap */
+    color: white;
+    border: 2px solid white;   /* Bord blanc pour le faire ressortir */
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    padding: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+.btn-delete-image:hover {
+    background-color: #bb2d3b;
+    transform: scale(1.1);
+}
