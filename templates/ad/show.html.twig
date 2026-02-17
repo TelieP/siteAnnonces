@@ -110,8 +110,6 @@
         {% endif %}
     </div>
 {% endfor %}
-
-           
         
                     {% if app.user %}
                         {% if app.user == ad.author %}
@@ -123,9 +121,23 @@
                             
                             {% if formVar %}
                                     {{ form_start(formVar, {'attr': {'enctype': 'multipart/form-data'}}) }}
+
+                                {# NOUVEAU CODE À METTRE À LA PLACE #}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Votre message</label>
+                            {{ form_widget(formVar.content, {
+                                'attr': {
+                                    'id': 'contact_message_field', 
+                                    'class': 'form-control', 
+                                    'rows': '5',
+                                    'placeholder': 'Écrivez votre message au vendeur ici...'
+                             }
+                         }) }}
+                         {{ form_errors(formVar.content) }}
+</div>
                                   
                                     <button type="submit" class="btn btn-primary w-100 fw-bold mt-3 py-2 shadow-sm">
-                                        <i class="bi bi-send me-2"></i>Envoyer ma réponse
+                                        <i class="bi bi-send me-2"></i>Envoyer un message
                                     </button>
                                 {{ form_end(formVar) }}
                             {% else %}
@@ -161,7 +173,7 @@
                     
                     <hr>
                     <div class="d-grid gap-2">
-                        <a href="#contact" class="btn btn-warning fw-bold shadow-sm">
+                        <a href="#contact" class="btn btn-warning fw-bold shadow-sm" onclick="focusMessageField(event)">
                             <i class="bi bi-chat-dots me-2"></i>Contacter le vendeur
                         </a>
 
@@ -176,7 +188,7 @@
         </div>
     </div>
 
-    {# --- ANNONCES SIMILAIRES --- #}
+   
     
 
         {# --- ANNONCES SIMILAIRES --- #}
@@ -212,4 +224,31 @@
 </div>
 </div>
 </div>
+ 
+{% endblock %}
+{% block javascripts %}
+<script>
+    function focusMessageField(event) {
+        // Délai de 600ms pour laisser le temps au scroll de finir
+        setTimeout(() => {
+            const field = document.getElementById('contact_content');
+            
+            if (field) {
+                // On place le curseur dans le champ
+                field.focus();
+                
+                // On force le style avec !important pour écraser Bootstrap
+                field.style.setProperty('transition', 'all 0.5s ease-in-out');
+                field.style.setProperty('border', '3px solid #ffc107', 'important');
+                field.style.setProperty('box-shadow', '0 0 15px rgba(255, 193, 7, 0.6)', 'important');
+                
+                // On retire l'effet après 2 secondes
+                setTimeout(() => {
+                    field.style.removeProperty('border');
+                    field.style.removeProperty('box-shadow');
+                }, 2000);
+            }
+        }, 600);
+    }
+</script>
 {% endblock %}
