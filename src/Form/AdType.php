@@ -5,6 +5,7 @@ namespace App\Form;
 use App\Entity\Ad;
 use App\Entity\Category;
 use App\Entity\User;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -25,9 +26,12 @@ class AdType extends AbstractType
                 'class' => Category::class,
                 'choice_label' => 'name',
             ])
-            ->add('city', null, [
+            ->add('city', TextType::class, [
             'label' => 'Ville',
-            'attr' => ['placeholder' => 'Ex: Lézignan-Corbières']
+            'attr' => [
+                       'class'  => 'city-autocomplete',
+                       'autocomplete' => 'off'
+                    ]
              ])
             ->add('showPhone', CheckboxType::class, [
                 'label'    => 'Afficher mon numéro de téléphone sur l\'annonce',
@@ -37,7 +41,7 @@ class AdType extends AbstractType
             ->add('imageFiles', FileType::class, [
             'label' => 'Ajouter des photos',
             'multiple' => true,
-            'mapped' => false, // Important : ce n'est pas lié directement à un champ de la base
+            'mapped' => false, 
             'required' => false,
             'attr' => ['accept' => 'image/*']
             ]) ;

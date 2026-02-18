@@ -10,7 +10,36 @@
                 <h1 class="mb-4">Déposer une annonce</h1>
                 
                 {{ form_start(form) }}
-                    {{ form_widget(form) }}
+                    {# Affiche tous les champs SAUF la ville et les boutons finaux #}
+                    {{ form_row(form.title) }}
+                    {{ form_row(form.description) }}
+                    {{ form_row(form.price) }}
+                    {{ form_row(form.category) }}
+
+                    {# Section Ville personnalisée avec bouton GPS #}
+                    <div class="mb-3 position-relative"> {# Ajout de position-relative pour les suggestions #}
+                        {{ form_label(form.city) }}
+                        <div class="input-group">
+                            <span class="input-group-text bg-white">
+                                <i class="bi bi-geo-alt text-primary"></i>
+                            </span>
+                            {{ form_widget(form.city, {
+                                'attr': {
+                                    'class': 'form-control city-autocomplete',
+                                    'placeholder': 'Ex: Lézignan-Corbières',
+                                    'autocomplete' : 'off'
+                                }
+                            }) }}
+                            <button class="btn btn-outline-primary" type="button" id="btn-locate" title="Me géolocaliser">
+                                <i class="bi bi-crosshair"></i>
+                            </button>
+                        </div>
+                        {{ form_errors(form.city) }}
+                    </div>
+
+                    {# Affiche les champs restants (téléphone, photos, etc.) #}
+                    {{ form_rest(form) }}
+
                     <button type="submit" class="btn btn-warning mt-3 w-100 fw-bold">
                         Publier mon annonce
                     </button>
@@ -19,4 +48,92 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cityInput = document.getElementById('ad_city');
+    const locateBtn = document.getElementById('btn-locate');
+    
+    if (!cityInput || !locateBtn) return;
+// --- 1. BOUTON GÉOLOCALISATION (Méthode IP + API Adresse) ---
+locateBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    locateBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    // On récupère d'abord la ville approximative via l'adresse IP
+    fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(ipData => {
+            const cityName = ipData.city;
+            
+            // On utilise ce nom pour obtenir les données propres de l'API Gouvernementale
+            return fetch(`https://api-adresse.data.gouv.fr/search/?q=${cityName}&type=municipality&limit=1`);
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.features && data.features.length > 0) {
+                const prop = data.features[0].properties;
+                // On remplit le champ avec l'ID ad_city identifié dans ton inspecteur
+                cityInput.value = `${prop.city} (${prop.postcode})`;
+                
+                // Petit effet visuel de succès
+                cityInput.classList.add('is-valid');
+                setTimeout(() => cityInput.classList.remove('is-valid'), 2000);
+            }
+            locateBtn.innerHTML = '<i class="bi bi-crosshair"></i>';
+        })
+        .catch(err => {
+            console.error("Erreur de localisation :", err);
+            alert("Impossible de déterminer votre position automatiquement.");
+            locateBtn.innerHTML = '<i class="bi bi-crosshair"></i>';
+        });
+});
+
+    // --- 2. AUTO-COMPLÉTION ---
+    const suggestionBox = document.createElement('div');
+    suggestionBox.classList.add('list-group', 'position-absolute', 'shadow-sm');
+    suggestionBox.style.zIndex = "1000";
+    cityInput.parentNode.appendChild(suggestionBox);
+
+    cityInput.addEventListener('input', function() {
+        // Ajuste la largeur dynamiquement au cas où la fenêtre soit redimensionnée
+        suggestionBox.style.width = cityInput.offsetWidth + "px";
+        
+        const query = this.value;
+        if (query.length < 3) {
+            suggestionBox.innerHTML = '';
+            return;
+        }
+
+        fetch(`https://api-adresse.data.gouv.fr/search/?q=${query}&type=municipality&limit=5`)
+            .then(response => response.json())
+            .then(data => {
+                suggestionBox.innerHTML = '';
+                data.features.forEach(feature => {
+                    const item = document.createElement('button');
+                    item.classList.add('list-group-item', 'list-group-item-action', 'text-start');
+                    item.type = "button";
+                    item.innerHTML = `<strong>${feature.properties.city}</strong> (${feature.properties.postcode})`;
+                    
+                    item.addEventListener('click', () => {
+                        cityInput.value = `${feature.properties.city} (${feature.properties.postcode})`;
+                        suggestionBox.innerHTML = '';
+                    });
+                    suggestionBox.appendChild(item);
+                });
+            });
+    });
+
+    // Fermer les suggestions si on clique ailleurs
+    document.addEventListener('click', function(e) {
+        if (e.target !== cityInput) {
+            suggestionBox.innerHTML = '';
+        }
+    });
+});
+</script>
 {% endblock %}
