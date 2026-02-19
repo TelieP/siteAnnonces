@@ -27,12 +27,12 @@ final class AdController extends AbstractController
     public function index(AdRepository $adRepo, CategoryRepository $categoryRepo, Request $request, EntityManagerInterface $em): Response
     {
         $query = $request->query->get('q');
-        $location = $request->query->get('l');
+        $location = $request->query->get('location');
         
         $minPrice = $request->query->get('min') !== "" ? (float)$request->query->get('min') : null;
         $maxPrice = $request->query->get('max') !== "" ? (float)$request->query->get('max') : null;
-
-        $ads = $adRepo->findBySearch($query, $location, $minPrice, $maxPrice);
+        $categoryId = $request->query->get('category');
+        $ads = $adRepo->findBySearch($query, $location, $minPrice, $maxPrice, $categoryId);
         $categories = $categoryRepo->findAll();
 
         // --- LOGIQUE HISTORIQUE PERMANENT (BASE DE DONNÉES) ---

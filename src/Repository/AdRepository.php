@@ -18,7 +18,7 @@ class AdRepository extends ServiceEntityRepository
 
    
 
-public function findBySearch(?string $query, ?string $location, ?float $min, ?float $max): array
+public function findBySearch(?string $query, ?string $location, ?float $min, ?float $max , ?int $categoryId = null): array
 { // L'accolade doit être ici !
     $qb = $this->createQueryBuilder('a');
 
@@ -42,16 +42,16 @@ public function findBySearch(?string $query, ?string $location, ?float $min, ?fl
            ->setParameter('max', $max);
     }
 
+    if ($categoryId) {
+        $qb->andWhere('a.category = :catId')
+           ->setParameter('catId', $categoryId);
+    }
+
     return $qb->orderBy('a.createdAt', 'DESC')
               ->getQuery()
               ->getResult();
 }
 
-// cette méthode de compter les annonces par jour pour les 7 derniers jours et affiche dans le tableau de bord admin
-
-// src/Repository/AdRepository.php
-
-// src/Repository/AdRepository.php
 
 public function countAdsByDay(): array
 {

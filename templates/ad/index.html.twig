@@ -15,7 +15,7 @@
                         <input type="text" name="q" class="form-control border-0" placeholder="Que recherchez-vous ?" value="{{ app.request.query.get('q') }}">
                     </div>
                     <div class="col-md-3">
-                        <input type="text" name="l" class="form-control border-0" placeholder="Où ? (Ville)" value="{{ app.request.query.get('l') }}">
+                        <input type="text" name="location" class="form-control border-0" placeholder="Où ? (Ville)" value="{{ app.request.query.get('l') }}">
                     </div>
                     <div class="col-md-2">
                         <input type="number" name="min" class="form-control border-0" placeholder="Prix min" value="{{ app.request.query.get('min') }}">
@@ -27,6 +27,13 @@
                         <button type="submit" class="btn btn-warning w-100 fw-bold">
                             <i class="bi bi-search"></i>
                         </button>
+                       {% if app.request.query.all is not empty %}
+                            <div class="text-center mt-3">
+                                 <a href="{{ path('app_ad_index') }}" class="btn btn-sm btn-link text-muted">
+                                    <i class="bi bi-x-circle-fill fs-3 text-danger"></i>
+                                </a>
+                            </div>
+                        {% endif %}
                     </div>
                 </form>
             </div>

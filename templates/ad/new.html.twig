@@ -49,50 +49,51 @@
     </div>
 </div>
 {% endblock %}
-
 {% block javascripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const cityInput = document.getElementById('ad_city');
     const locateBtn = document.getElementById('btn-locate');
     
-    if (!cityInput || !locateBtn) return;
-// --- 1. BOUTON GÉOLOCALISATION (Méthode IP + API Adresse) ---
-locateBtn.addEventListener('click', function(e) {
+    // --- SÉCURITÉ CRUCIALE ---
+    // Si ces éléments n'existent pas (comme sur la page d'accueil), 
+    // on arrête le script immédiatement pour ne pas créer d'erreur.
+    if (!cityInput || !locateBtn) {
+        return; 
+    }
+
+    // --- 1. BOUTON GÉOLOCALISATION (VERSION IP SANS TIMEOUT) ---
+    locateBtn.addEventListener('click', function(e) {
     e.preventDefault();
-    e.stopPropagation();
-    
     locateBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
 
-    // On récupère d'abord la ville approximative via l'adresse IP
-    fetch('https://ipapi.co/json/')
+    // Utilisation d'une API alternative (ip-api.com) souvent moins bloquée
+    fetch('http://ip-api.com/json/')
         .then(res => res.json())
         .then(ipData => {
-            const cityName = ipData.city;
-            
-            // On utilise ce nom pour obtenir les données propres de l'API Gouvernementale
-            return fetch(`https://api-adresse.data.gouv.fr/search/?q=${cityName}&type=municipality&limit=1`);
+            if (ipData.status === 'success') {
+                // On utilise les coordonnées fournies par cette nouvelle API
+                return fetch(`https://api-adresse.data.gouv.fr/reverse/?lon=${ipData.lon}&lat=${ipData.lat}&type=municipality`);
+            }
+            throw new Error('Échec IP-API');
         })
         .then(res => res.json())
         .then(data => {
             if (data.features && data.features.length > 0) {
                 const prop = data.features[0].properties;
-                // On remplit le champ avec l'ID ad_city identifié dans ton inspecteur
+                // Remplissage du champ ville
                 cityInput.value = `${prop.city} (${prop.postcode})`;
-                
-                // Petit effet visuel de succès
-                cityInput.classList.add('is-valid');
-                setTimeout(() => cityInput.classList.remove('is-valid'), 2000);
+                cityInput.dispatchEvent(new Event('input'));
             }
             locateBtn.innerHTML = '<i class="bi bi-crosshair"></i>';
         })
         .catch(err => {
-            console.error("Erreur de localisation :", err);
-            alert("Impossible de déterminer votre position automatiquement.");
+            console.error(err);
+            // Si même l'alternative échoue, on prévient l'utilisateur
+            alert("La localisation automatique est bloquée par votre navigateur ou votre réseau.");
             locateBtn.innerHTML = '<i class="bi bi-crosshair"></i>';
         });
 });
-
     // --- 2. AUTO-COMPLÉTION ---
     const suggestionBox = document.createElement('div');
     suggestionBox.classList.add('list-group', 'position-absolute', 'shadow-sm');
@@ -100,9 +101,7 @@ locateBtn.addEventListener('click', function(e) {
     cityInput.parentNode.appendChild(suggestionBox);
 
     cityInput.addEventListener('input', function() {
-        // Ajuste la largeur dynamiquement au cas où la fenêtre soit redimensionnée
         suggestionBox.style.width = cityInput.offsetWidth + "px";
-        
         const query = this.value;
         if (query.length < 3) {
             suggestionBox.innerHTML = '';
@@ -118,7 +117,6 @@ locateBtn.addEventListener('click', function(e) {
                     item.classList.add('list-group-item', 'list-group-item-action', 'text-start');
                     item.type = "button";
                     item.innerHTML = `<strong>${feature.properties.city}</strong> (${feature.properties.postcode})`;
-                    
                     item.addEventListener('click', () => {
                         cityInput.value = `${feature.properties.city} (${feature.properties.postcode})`;
                         suggestionBox.innerHTML = '';
@@ -126,13 +124,6 @@ locateBtn.addEventListener('click', function(e) {
                     suggestionBox.appendChild(item);
                 });
             });
-    });
-
-    // Fermer les suggestions si on clique ailleurs
-    document.addEventListener('click', function(e) {
-        if (e.target !== cityInput) {
-            suggestionBox.innerHTML = '';
-        }
     });
 });
 </script>
