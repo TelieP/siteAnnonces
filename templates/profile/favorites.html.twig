@@ -12,20 +12,21 @@
     <hr class="mb-5">
 
     <div class="row">
+    
         {% for ad in ads %}
             <div class="col-md-4 mb-4">
                 <div class="card h-100 shadow-sm border-0 overflow-hidden ad-card">
                     {# Section Image avec Badge Prix #}
                     <div class="position-relative">
                         {% if ad.imageName %}
-                            <img src="{{ asset('images/ads/' ~ ad.imageName) }}" 
+                            <img src="{{  asset('uploads/images/' ~ ad.imageName) }}" 
                                  class="card-img-top" 
                                  alt="{{ ad.title }}" 
                                  style="height: 200px; object-fit: cover;">
                         {% else %}
                             <img src="https://via.placeholder.com/400x250?text=Pas+d'image" 
                                  class="card-img-top" 
-                                 alt="placeholder">
+                                 alt="Image">
                         {% endif %}
                         
                         {# Bouton pour retirer des favoris (Bascule) #}
