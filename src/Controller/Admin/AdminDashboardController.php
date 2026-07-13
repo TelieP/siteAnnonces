@@ -11,6 +11,7 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\User;
 use App\Form\UserType;
 use Symfony\Component\HttpFoundation\Request;
+use App\Entity\Ad;
 
 
 // Le nom de la classe ne doit PAS contenir de slash
@@ -106,4 +107,22 @@ public function editUser(User $user, Request $request, EntityManagerInterface $e
         'user' => $user
     ]);
 }
+
+#[Route('/admin/moderation', name: 'admin_moderation')]
+public function moderation(AdRepository $adRepository): Response
+{
+    return $this->render('admin/moderation.html.twig', [
+        'ads' => $adRepository->findBy([], ['createdAt' => 'DESC']),
+    ]);
+}
+
+#[Route('/admin/ad/{id}/details', name: 'admin_ad_details')]
+public function details(Ad $ad): Response
+{
+    // Cette page permet de voir TOUTES les infos (description complète, photos, auteur)
+    return $this->render('admin/ad_details.html.twig', [
+        'ad' => $ad,
+    ]);
+}
+
 }

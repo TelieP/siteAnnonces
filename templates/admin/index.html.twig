@@ -4,11 +4,12 @@
 
 {% block body %}
 <div class="container mt-5">
-        {% for message in app.flashes('success') %}
-             <div class="alert alert-success mt-3">
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success mt-3">
             {{ message }}
-            </div>
-         {% endfor %}
+        </div>
+    {% endfor %}
+
     <h1 class="fw-bold mb-4 text-danger"><i class="bi bi-shield-lock me-2"></i>Administration</h1>
 
     <div class="row g-4">
@@ -22,14 +23,14 @@
         </div>
         <div class="col-md-6">
             <a href="{{ path('admin_users_list') }}" class="text-decoration-none">
-            <div class="card bg-dark text-white border-0 shadow-sm">
-            <div class="card-body p-4 text-center">
-                <h2 class="display-4 fw-bold">{{ usersCount }}</h2>
-                <p class="mb-0">Utilisateurs inscrits <i class="bi bi-arrow-right-short"></i></p>
-            </div>
-        </div>
+                <div class="card bg-dark text-white border-0 shadow-sm">
+                    <div class="card-body p-4 text-center">
+                        <h2 class="display-4 fw-bold">{{ usersCount }}</h2>
+                        <p class="mb-0">Utilisateurs inscrits <i class="bi bi-arrow-right-short"></i></p>
+                    </div>
+                </div>
             </a>
-</div>
+        </div>
     </div>
 
     <h3 class="mt-5 fw-bold">Dernières annonces à modérer</h3>
@@ -46,25 +47,39 @@
             <tbody>
                 {% for ad in lastAds %}
                 <tr>
-                    <td>{{ ad.title }}</td>
-                    <td>{{ ad.price }} €</td>
+                    <td><strong>{{ ad.title }}</strong></td>
+                    <td><span class="badge bg-light text-dark">{{ ad.price }} €</span></td>
                     <td>{{ ad.author.userIdentifier }}</td>
                     <td>
-                        <a href="{{ path('admin_ad_delete', {id: ad.id}) }}" 
-                        class="btn btn-sm btn-outline-danger" 
-                        onclick="return confirm('Es-tu sûr de vouloir supprimer cette annonce ?')">
-                        Supprimer
-                        </a>
+                        <div class="d-flex gap-2">
+                            {# BOUTON D'INSPECTION (MODÉRATION) #}
+                            <a href="{{ path('admin_ad_details', {id: ad.id}) }}" class="btn btn-sm btn-info text-white">
+                                <i class="bi bi-eye"></i> Voir
+                            </a>
+
+                            {# BOUTON DE SUPPRESSION DIRECTE #}
+                            <a href="{{ path('admin_ad_delete', {id: ad.id}) }}" 
+                               class="btn btn-sm btn-outline-danger" 
+                               onclick="return confirm('Es-tu sûr de vouloir supprimer cette annonce ?')">
+                                <i class="bi bi-trash"></i> Supprimer
+                            </a>
+                        </div>
                     </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="4" class="text-center text-muted p-4">Aucune annonce à modérer pour le moment.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
-<hr class="my-5 mb-5 pb-5">
-<div class="col-md-8 mx-auto">
-    <div class="card shadow-sm p-4">
+
+<hr class="my-5">
+
+<div class="col-md-8 mx-auto mb-5">
+    <div class="card shadow-sm p-4 border-0">
         <h4 class="fw-bold mb-4">Activité du site (7 derniers jours)</h4>
         <div style="height: 300px;">
             <canvas id="myChart"></canvas>
@@ -73,17 +88,13 @@
 </div>
 
 <script>
-    // On attend que le DOM soit totalement chargé
     document.addEventListener('DOMContentLoaded', function() {
         const ctx = document.getElementById('myChart');
-        
-        // On récupère les données envoyées par le contrôleur
-        // Le filtre |raw est indispensable ici !
         const chartData = {{ chartData|raw }};
 
         if (ctx) {
             new Chart(ctx, {
-                type: 'bar', // On commence par des barres, c'est plus visible
+                type: 'bar',
                 data: chartData,
                 options: {
                     responsive: true,
@@ -92,6 +103,11 @@
                         y: {
                             beginAtZero: true,
                             ticks: { stepSize: 1 }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
                         }
                     }
                 }

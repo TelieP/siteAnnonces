@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <h2 class="mb-0">Modération : {{ ad.title }}</h2>
+            <a href="{{ path('admin_moderation') }}" class="btn btn-outline-light btn-sm">Retour</a>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    {# Affichage des images #}
+                    <div id="adImages" class="carousel slide" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            {% for image in ad.images %}
+                                <div class="carousel-item {{ loop.first ? 'active' : '' }}">
+                                    <img src="{{ asset('uploads/images/' ~ image.name) }}" class="d-block w-100 rounded" alt="...">
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <p class="badge bg-warning text-dark">{{ ad.price }} €</p>
+                    <p><strong>Auteur :</strong> {{ ad.user.email }}</p>
+                    <p><strong>Ville :</strong> {{ ad.city }}</p>
+                    <hr>
+                    <h5>Description</h5>
+                    <p>{{ ad.description|nl2br }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-end gap-2">
+            {# Action de suppression #}
+            <form method="post" action="{{ path('app_ad_delete', {'id': ad.id}) }}" onsubmit="return confirm('Supprimer définitivement cette annonce ?');">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ ad.id) }}">
+                <button class="btn btn-danger">Supprimer l'annonce</button>
+            </form>
+            <button class="btn btn-success">Valider l'annonce</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
